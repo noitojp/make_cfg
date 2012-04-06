@@ -1,0 +1,90 @@
+ifdef CSRC
+OBJS += $(addsuffix .o,$(basename $(CSRC)))
+endif
+
+LDCMD = $(CC)
+ifdef CXXSRC
+OBJS += $(addsuffix .o,$(basename $(CXXSRC)))
+LDCMD = $(CXX)
+endif
+
+ifdef LIBNAME
+SOTARGET = lib$(LIBNAME).so.$(LIBVERSION)
+OPPFLAGS += -fPIC -DPIC
+endif
+
+ifdef MODNAME
+MODTARGET = mod_$(MODNAME).so
+OPPFLAGS += -fPIC -DPIC \
+			$(shell $(APXS) -q CFLAGS) $(shell $(APXS) -q EXTRA_CFLAGS) \
+			$(shell $(APXS) -q CPPFLAGS) $(shell $(APXS) -q EXTRA_CPPFLAGS) \
+			$(shell $(APXS) -q INCLUDES) $(shell $(APXS) -q EXTRA_INCLUDES)
+LDFLAGS += $(shell $(APXS) -q LDFLAGS) $(shell $(APXS) -q EXTRA_LDFLAGS) $(shell $(APXS) -q SH_LDFLAGS)
+#LDLIBS += $(shell $(APXS) -q LIBS) $(shell $(APXS) -q EXTRA_LIBS)
+endif
+
+DEPS = $(addsuffix .d,$(basename $(OBJS)))
+CFLAGS = $(OPPFLAGS) $(WARN)
+CXXFLAGS = $(OPPFLAGS) $(WARN)
+
+ifdef SUBDIR
+.PHONY: all $(SUBDIR)
+endif
+all: $(SUBDIR) $(SOTARGET) $(EXETARGET) $(MODTARGET)
+
+ifeq "$(basename $(EXETARGET))" "$(EXETARGET)"
+$(EXETARGET): $(OBJS) $(DEPOBJS) $(ARCHS)
+	$(LDCMD) $(LDFLAGS) -Wl,-z,relro $^ -o $@ $(LDLIBS)
+endif
+$(SOTARGET): $(OBJS) $(DEPOBJS) $(ARCHS)
+	$(LDCMD) -shared $(LDFLAGS) -Wl,-z,relro -Wl,-soname,$@ $^ -o $@ $(LDLIBS)
+$(MODTARGET): $(OBJS) $(DEPOBJS) $(ARCHS)
+	$(LDCMD) -shared -pthread $(LDFLAGS) -Wl,-soname,$@ $^ -o $@ $(LDLIBS)
+
+.PHONY: clean
+clean: $(SUBDIR)
+	$(RM) -r $(DEPS_DIR) $(OBJS) $(EXETARGET) $(SOTARGET) $(MODTARGET)
+
+$(SUBDIR):
+	$(MAKE) $(MAKECMDGOALS) --directory=$@
+
+ifneq "$(MAKECMDGOALS)" "clean"
+-include $(patsubst %,$(DEPS_DIR)/%,$(DEPS))
+endif
+
+$(DEPS_DIR)/%.d: %.c
+	@if [ ! -e $(DEPS_DIR) ]; then	\
+	mkdir $(DEPS_DIR);				\
+	fi								\
+	;								\
+	$(CC) $(CFLAGS) -M $< > $@.$$$$;					\
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@;	\
+	rm -f $@.$$$$;
+
+$(DEPS_DIR)/%.d: %.cc
+	@if [ ! -e $(DEPS_DIR) ]; then	\
+	mkdir $(DEPS_DIR);				\
+	fi								\
+	;								\
+	$(CXX) $(CXXFLAGS) -M $< > $@.$$$$;					\
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@;	\
+	rm -f $@.$$$$;
+
+$(DEPS_DIR)/%.d: %.cpp
+	@if [ ! -e $(DEPS_DIR) ]; then	\
+	mkdir $(DEPS_DIR);				\
+	fi								\
+	;								\
+	$(CXX) $(CXXFLAGS) -M $< > $@.$$$$;					\
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@;	\
+	rm -f $@.$$$$;
+
+$(DEPS_DIR)/%.d: %.C
+	@if [ ! -e $(DEPS_DIR) ]; then	\
+	mkdir $(DEPS_DIR);				\
+	fi								\
+	;								\
+	$(CXX) $(CXXFLAGS) -M $< > $@.$$$$;					\
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@;	\
+	rm -f $@.$$$$;
+

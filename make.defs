@@ -1,0 +1,13 @@
+DEPS_DIR := .deps
+
+CC := gcc
+CXX := g++
+APXS := apxs
+MAKE := gmake
+
+WARN := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2	\
+		-Wcast-qual -Wcast-align -Wwrite-strings		\
+		-Wconversion -Wfloat-equal -Wpointer-arith		\
+		-Wswitch-enum -Winline
+OPPFLAGS := -O2 -g -pipe -finline-functions # -pthread
+LIBVERSION := 1
