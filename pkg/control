@@ -1,0 +1,13 @@
+Source: makecfg
+Section: unknown
+Priority: optional
+Maintainer: Nobutaka Ito <noitojp@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+Homepage: no url
+
+Package: makecfg
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Makefile Config.
+
