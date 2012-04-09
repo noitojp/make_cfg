@@ -1,5 +1,3 @@
-BIN=$(DESTDIR)/usr/local/bin
-
 dummy:
 
 
