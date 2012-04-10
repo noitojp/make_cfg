@@ -3,7 +3,8 @@ DEPS_DIR := .deps
 CC := gcc
 CXX := g++
 APXS := apxs
-MAKE := gmake
+#MAKE := gmake
+MAKE := make
 
 WARN := -Wall -Wextra -Wformat=2 -Wstrict-aliasing=2	\
 		-Wcast-qual -Wcast-align -Wwrite-strings		\
