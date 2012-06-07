@@ -1,3 +1,9 @@
+makecfg (0.0.2) unstable; urgency=low
+
+  * change dir.
+
+ -- Nobutaka Ito <noitojp@gmail.com>  Thu, 07 Jun 2012 15:00:28 +0900
+
 makecfg (0.0.1) unstable; urgency=low
 
   * Initial release.
