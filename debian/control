@@ -8,6 +8,6 @@ Homepage: no url
 
 Package: makecfg
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${misc:Depends}
 Description: Makefile Config.
 
