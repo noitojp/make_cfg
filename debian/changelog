@@ -1,3 +1,9 @@
+makecfg (0.0.3) unstable; urgency=low
+
+  * add static library, symbolic link.
+
+ -- Nobutaka Ito <noitojp@gmail.com>  Fri, 12 Apr 2013 18:58:26 +0900
+
 makecfg (0.0.2) unstable; urgency=low
 
   * change dir.
