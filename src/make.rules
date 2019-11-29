@@ -2,9 +2,6 @@ ifdef CSRC
 OBJS += $(addsuffix .o,$(basename $(CSRC)))
 endif
 
-RANLIBCMD = ranlib
-LNCMD = ln
-
 LDCMD = $(CC)
 ifdef CXXSRC
 OBJS += $(addsuffix .o,$(basename $(CXXSRC)))
@@ -13,19 +10,7 @@ endif
 
 ifdef LIBNAME
 SOTARGET = lib$(LIBNAME).so.$(LIBVERSION)
-ATARGET = lib$(LIBNAME).a
-LNTARGET = lib$(LIBNAME).so
 OPPFLAGS += -fPIC -DPIC
-endif
-
-ifdef MODNAME
-MODTARGET = mod_$(MODNAME).so
-OPPFLAGS += -fPIC -DPIC \
-			$(shell $(APXS) -q CFLAGS) $(shell $(APXS) -q EXTRA_CFLAGS) \
-			$(shell $(APXS) -q CPPFLAGS) $(shell $(APXS) -q EXTRA_CPPFLAGS) \
-			$(shell $(APXS) -q INCLUDES) $(shell $(APXS) -q EXTRA_INCLUDES)
-LDFLAGS += $(shell $(APXS) -q LDFLAGS) $(shell $(APXS) -q EXTRA_LDFLAGS) $(shell $(APXS) -q SH_LDFLAGS)
-#LDLIBS += $(shell $(APXS) -q LIBS) $(shell $(APXS) -q EXTRA_LIBS)
 endif
 
 DEPS = $(addsuffix .d,$(basename $(OBJS)))
@@ -35,7 +20,7 @@ CXXFLAGS = $(OPPFLAGS) $(WARN)
 ifdef SUBDIR
 .PHONY: all $(SUBDIR)
 endif
-all: $(SUBDIR) $(SOTARGET) $(ATARGET) $(LNTARGET) $(EXETARGET) $(MODTARGET)
+all: $(SUBDIR) $(SOTARGET) $(EXETARGET)
 
 ifeq "$(basename $(EXETARGET))" "$(EXETARGET)"
 $(EXETARGET): $(OBJS) $(DEPOBJS) $(ARCHS)
@@ -43,17 +28,10 @@ $(EXETARGET): $(OBJS) $(DEPOBJS) $(ARCHS)
 endif
 $(SOTARGET): $(OBJS) $(DEPOBJS) $(ARCHS)
 	$(LDCMD) -shared $(LDFLAGS) -Wl,-z,relro -Wl,-soname,$@ $^ -o $@ $(LDLIBS)
-$(ATARGET): $(OBJS) $(DEPOBJS) $(ARCHS)
-	$(AR) cru $@ $(OBJS) $(DEPOBJS)
-	$(RANLIBCMD) $@
-$(LNTARGET): $(SOTARGET)
-	$(LNCMD) -s $(SOTARGET) $@
-$(MODTARGET): $(OBJS) $(DEPOBJS) $(ARCHS)
-	$(LDCMD) -shared -pthread $(LDFLAGS) -Wl,-soname,$@ $^ -o $@ $(LDLIBS)
 
 .PHONY: clean
 clean: $(SUBDIR)
-	$(RM) -r $(DEPS_DIR) $(OBJS) $(EXETARGET) $(SOTARGET) $(ATARGET) $(LNTARGET) $(MODTARGET)
+	$(RM) -r $(DEPS_DIR) $(OBJS) $(EXETARGET) $(SOTARGET)
 
 $(SUBDIR):
 	$(MAKE) $(MAKECMDGOALS) --directory=$@
